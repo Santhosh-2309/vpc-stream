@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DevOps Terminal History</title>
+    <style>
+        body { background-color: #0d1117; color: #c9d1d9; font-family: 'Consolas', 'Monaco', 'Courier New', monospace; padding: 20px; margin: 0; }
+        .terminal { background-color: #161b22; border: 1px solid #30363d; border-radius: 6px; padding: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
+        .command { color: #58a6ff; font-weight: bold; margin-top: 15px; }
+        .command::before { content: "$ "; color: #3fb950; }
+        .output { color: #8b949e; margin-left: 20px; white-space: pre-wrap; font-size: 0.9em; border-left: 2px solid #30363d; padding-left: 10px; margin-top: 5px; }
+        h1 { color: #f0f6fc; border-bottom: 2px solid #21262d; padding-bottom: 10px; margin-bottom: 20px; font-size: 1.5em; }
+        .timestamp { font-size: 0.8em; color: #484f58; margin-bottom: 5px; }
+    </style>
+</head>
+<body>
+    <div class="terminal">
+        <h1>DevOps Experiments 4 & 5 - Terminal Command History</h1>
+        
+        <div class="entry">
+            <div class="timestamp">Phase 1: Setup</div>
+            <div class="command">docker info</div>
+            <div class="output">Client: Docker Engine - Community
+Version: 26.1.1
+... (Docker daemon running)</div>
+        </div>
+
+        <div class="entry">
+            <div class="command">mkdir -Force "$env:USERPROFILE\jenkins-static-site-1006"</div>
+            <div class="output">Directory: C:\Users\Admin created successfully.</div>
+        </div>
+
+        <div class="entry">
+            <div class="command">docker compose up -d</div>
+            <div class="output">[+] Running 3/3
+ ✔ Network jss_default Created
+ ✔ Volume jss_jenkins_home Created
+ ✔ Container jenkins-static Started</div>
+        </div>
+
+        <div class="entry">
+            <div class="command">docker exec jenkins-static cat /var/jenkins_home/secrets/initialAdminPassword</div>
+            <div class="output">d513c9dbdd754f21a817a41bf5a4eb09</div>
+        </div>
+
+        <div class="entry">
+            <div class="timestamp">Phase 1: Cleanup</div>
+            <div class="command">docker compose down</div>
+            <div class="output">✔ Container jenkins-static Removed
+✔ Network jss_default Removed</div>
+        </div>
+
+        <div class="entry">
+            <div class="timestamp">Phase 2: Setup</div>
+            <div class="command">mkdir -Force "$env:USERPROFILE\jenkins-reactive-site-1006"</div>
+            <div class="output">Directory: C:\Users\Admin created successfully.</div>
+        </div>
+
+        <div class="entry">
+            <div class="command">docker compose up -d</div>
+            <div class="output">[+] Running 3/3
+ ✔ Container jenkins-reactive Started</div>
+        </div>
+
+        <div class="entry">
+            <div class="command">docker exec jenkins-reactive cat /var/jenkins_home/secrets/initialAdminPassword</div>
+            <div class="output">5e8cb9b98e5741ad947f306ee1209f10f</div>
+        </div>
+
+        <div class="entry">
+            <div class="timestamp">Fixing CSP & Styling</div>
+            <div class="command">docker exec jenkins-reactive ls /var/jenkins_home/users</div>
+            <div class="output">dominic_390e657cf218e427</div>
+        </div>
+
+        <div class="entry">
+            <div class="command">docker logs jenkins-reactive | tail -n 10</div>
+            <div class="output">Jenkins is fully up and running</div>
+        </div>
+
+        <div class="entry">
+            <div class="timestamp">Final Cleanup</div>
+            <div class="command">docker compose down</div>
+            <div class="output">✔ Container jenkins-reactive Removed</div>
+        </div>
+    </div>
+</body>
+</html>

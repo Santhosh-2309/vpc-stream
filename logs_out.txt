@@ -1,0 +1,22 @@
+﻿--- STEP 10: CHECK CONTAINER LOGS FOR ERRORS ---
+
+scratch-log-generator-1 logs contained issues:
+   [2026-04-07 05:03:56 +0000] [1] [CRITICAL] WORKER TIMEOUT (pid:7)
+   [2026-04-07 05:03:57 +0000] [1] [ERROR] Worker (pid:7) was sent SIGKILL! Perhaps out of memory?
+   2026-04-07 05:04:09,414 [ERROR] failed to load ratelimit for function app.status.status: couldn't parse rate limit string '10'
+   2026-04-07 05:04:09,425 [ERROR] failed to load ratelimit for function app.start.start: couldn't parse rate limit string '10'
+   2026-04-07 05:04:14,523 [ERROR] failed to load ratelimit for function app.status.status: couldn't parse rate limit string '10'
+   2026-04-07 05:04:14,531 [ERROR] failed to load ratelimit for function app.set_rate.set_rate: couldn't parse rate limit string '10'
+   2026-04-07 05:04:14,540 [ERROR] failed to load ratelimit for function app.set_rate.set_rate: couldn't parse rate limit string '10'
+   2026-04-07 05:04:14,549 [ERROR] failed to load ratelimit for function app.stop.stop: couldn't parse rate limit string '10'
+   2026-04-07 05:04:14,849 [ERROR] failed to load ratelimit for function app.start.start: couldn't parse rate limit string '10'
+   2026-04-07 05:04:14,897 [ERROR] failed to load ratelimit for function app.stop.stop: couldn't parse rate limit string '10'
+
+scratch-anomaly-detector-1 logs contained issues:
+   2026-04-07 05:04:11,341 [WARNING] ANOMALY: Unauthorized | CRITICAL | Blocked IP 10.0.0.5 attempted access
+
+scratch-grafana-1 logs contained issues:
+   logger=ngalert.state.manager t=2026-04-07T05:03:29.60116687Z level=info msg="Running in alternative execution of Error/NoData mode"
+   logger=provisioning.plugins t=2026-04-07T05:03:29.87915206Z level=error msg="Failed to read plugin provisioning files from directory" path=/etc/grafana/provisioning/plugins error="open /etc/grafana/provisioning/plugins: no such file or directory"
+   logger=provisioning.notifiers t=2026-04-07T05:03:29.881192611Z level=error msg="Can't read alert notification provisioning files from directory" path=/etc/grafana/provisioning/notifiers error="open /etc/grafana/provisioning/notifiers: no such file or directory"
+   logger=provisioning.alerting t=2026-04-07T05:03:29.883229984Z level=error msg="can't read alerting provisioning files from directory" path=/etc/grafana/provisioning/alerting error="open /etc/grafana/provisioning/alerting: no such file or directory"

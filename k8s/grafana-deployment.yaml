@@ -1,0 +1,59 @@
+# kubectl create secret generic grafana-secret \
+#   --from-literal=admin-password=YOUR_PASSWORD
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: grafana
+  labels:
+    app: vpc-stream
+    tier: database
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: vpc-stream
+      tier: database
+  template:
+    metadata:
+      labels:
+        app: vpc-stream
+        tier: database
+    spec:
+      containers:
+        - name: grafana
+          image: grafana/grafana:10.4.0
+          ports:
+            - containerPort: 3000
+          env:
+            - name: GF_SECURITY_ADMIN_USER
+              value: "vpcadmin"
+            - name: GF_SECURITY_ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: grafana-secret
+                  key: admin-password
+            - name: GF_USERS_ALLOW_SIGN_UP
+              value: "false"
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: grafana
+  labels:
+    app: vpc-stream
+    tier: database
+spec:
+  type: ClusterIP
+  ports:
+    - port: 3000
+      targetPort: 3000
+  selector:
+    app: vpc-stream
+    tier: database

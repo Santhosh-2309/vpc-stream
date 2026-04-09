@@ -1,0 +1,58 @@
+﻿docker : [2026-04-08 
+03:20:41 +0000] [1] 
+[INFO] Starting gunicorn 
+21.2.0
+At line:1 char:103
++ ... Seconds 15; docker 
+logs 
+scratch-log-generator-1 
+--tail 30 > temp_log4 ...
++                 ~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo        
+      : NotSpecified: ([  
+  2026-04-08 03:...guni   
+ corn 21.2.0:String) [    
+], RemoteException
+    + FullyQualifiedError 
+   Id : NativeCommandErr  
+  or
+ 
+[2026-04-08 03:20:41 
++0000] [1] [INFO] 
+Listening at: 
+http://0.0.0.0:5001 (1)
+[2026-04-08 03:20:41 
++0000] [1] [INFO] Using 
+worker: sync
+[2026-04-08 03:20:41 
++0000] [7] [INFO] Booting 
+worker with pid: 7
+/usr/local/lib/python3.11/
+site-packages/flask_limite
+r/extension.py:333: 
+UserWarning: Using the 
+in-memory storage for 
+tracking rate limits as 
+no storage was explicitly 
+specified. This is not 
+recommended for 
+production use. See: https
+://flask-limiter.readthedo
+cs.io#configuring-a-storag
+e-backend for 
+documentation about 
+configuring the storage 
+backend.
+  warnings.warn(
+2026-04-08 03:20:47,078 
+[INFO] Loading CICIDS2017 
+dataset from 
+./data/cicids2017.csv ΓÇª
+2026-04-08 03:20:51,399 
+[INFO] Loaded 225745 
+rows, 79 columns.
+2026-04-08 03:23:11,335 
+[INFO] Streaming started 
+at 10 rows/s.

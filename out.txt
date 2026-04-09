@@ -1,0 +1,47 @@
+﻿============================= test session starts =============================
+platform win32 -- Python 3.12.6, pytest-9.0.2, pluggy-1.6.0
+rootdir: C:\Users\Admin\.gemini\antigravity\scratch
+plugins: anyio-4.9.0, Faker-33.1.0
+collected 9 items / 2 errors
+
+=================================== ERRORS ====================================
+__________ ERROR collecting anomaly-detector/tests/test_detection.py __________
+ImportError while importing test module 'C:\Users\Admin\.gemini\antigravity\scratch\anomaly-detector\tests\test_detection.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+..\..\..\AppData\Local\Programs\Python\Python312\Lib\importlib\__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+anomaly-detector\tests\test_detection.py:18: in <module>
+    patch("influxdb_client.InfluxDBClient").start()
+..\..\..\AppData\Local\Programs\Python\Python312\Lib\unittest\mock.py:1613: in start
+    result = self.__enter__()
+             ^^^^^^^^^^^^^^^^
+..\..\..\AppData\Local\Programs\Python\Python312\Lib\unittest\mock.py:1445: in __enter__
+    self.target = self.getter()
+                  ^^^^^^^^^^^^^
+..\..\..\AppData\Local\Programs\Python\Python312\Lib\pkgutil.py:513: in resolve_name
+    mod = importlib.import_module(modname)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\AppData\Local\Programs\Python\Python312\Lib\importlib\__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   ModuleNotFoundError: No module named 'influxdb_client'
+________________ ERROR collecting dashboard/tests/test_app.py _________________
+import file mismatch:
+imported module 'test_app' has this __file__ attribute:
+  C:\Users\Admin\.gemini\antigravity\scratch\log-generator\tests\test_app.py
+which is not the same as the test file we want to collect:
+  C:\Users\Admin\.gemini\antigravity\scratch\dashboard\tests\test_app.py
+HINT: remove __pycache__ / .pyc files and/or use a unique basename for your test file modules
+============================== warnings summary ===============================
+..\..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\flask_limiter\extension.py:336
+  C:\Users\Admin\AppData\Local\Programs\Python\Python312\Lib\site-packages\flask_limiter\extension.py:336: UserWarning: Using the in-memory storage for tracking rate limits as no storage was explicitly specified. This is not recommended for production use. See: https://flask-limiter.readthedocs.io#configuring-a-storage-backend for documentation about configuring the storage backend.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+ERROR anomaly-detector/tests/test_detection.py
+ERROR dashboard/tests/test_app.py
+!!!!!!!!!!!!!!!!!!! Interrupted: 2 errors during collection !!!!!!!!!!!!!!!!!!!
+======================== 1 warning, 2 errors in 2.39s =========================

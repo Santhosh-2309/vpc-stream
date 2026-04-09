@@ -1,0 +1,75 @@
+# kubectl create secret generic vpc-stream-secret \
+#   --from-literal=internal-token=YOUR_TOKEN
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: log-generator
+  labels:
+    app: vpc-stream
+    tier: backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: vpc-stream
+      tier: backend
+  template:
+    metadata:
+      labels:
+        app: vpc-stream
+        tier: backend
+    spec:
+      containers:
+        - name: log-generator
+          image: vpc-stream/log-generator:1.0.0
+          ports:
+            - containerPort: 5001
+          env:
+            - name: LOG_GENERATOR_PORT
+              value: "5001"
+            - name: ANOMALY_DETECTOR_URL
+              value: "http://anomaly-detector:5002"
+            - name: CICIDS2017_PATH
+              value: "/data/cicids2017.csv"
+            - name: INTERNAL_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: vpc-stream-secret
+                  key: internal-token
+            - name: LOG_RATE_LIMIT
+              value: "10"
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 5001
+            initialDelaySeconds: 15
+            periodSeconds: 20
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 5001
+            initialDelaySeconds: 10
+            periodSeconds: 10
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: log-generator
+  labels:
+    app: vpc-stream
+    tier: backend
+spec:
+  type: ClusterIP
+  ports:
+    - port: 5001
+      targetPort: 5001
+  selector:
+    app: vpc-stream
+    tier: backend

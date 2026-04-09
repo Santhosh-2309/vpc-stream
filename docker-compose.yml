@@ -1,0 +1,84 @@
+version: "3.9"
+
+services:
+  log-generator:
+    image: vpc-stream/log-generator:1.0.0
+    build: ./log-generator
+    ports:
+      - "5001:5001"
+    env_file: .env
+    depends_on:
+      - anomaly-detector
+    networks:
+        - vpc-net
+    restart: unless-stopped
+    volumes:
+      - ./data:/app/data:ro
+
+  anomaly-detector:
+    image: vpc-stream/anomaly-detector:1.0.0
+    build: ./anomaly-detector
+    ports:
+      - "5002:5002"
+    env_file: .env
+    depends_on:
+      - influxdb
+    networks:
+      - vpc-net
+    restart: unless-stopped
+
+  dashboard:
+    image: vpc-stream/dashboard:1.0.0
+    build: ./dashboard
+    ports:
+      - "5003:5003"
+    env_file: .env
+    depends_on:
+      - anomaly-detector
+    networks:
+      - vpc-net
+    restart: unless-stopped
+
+  influxdb:
+    image: influxdb:2.7
+    ports:
+      - "8086:8086"
+    env_file: .env
+    environment:
+      DOCKER_INFLUXDB_INIT_MODE: setup
+      DOCKER_INFLUXDB_INIT_USERNAME: ${INFLUXDB_ADMIN_USER}
+      DOCKER_INFLUXDB_INIT_PASSWORD: ${INFLUXDB_ADMIN_PASSWORD}
+      DOCKER_INFLUXDB_INIT_ORG: ${INFLUXDB_ORG}
+      DOCKER_INFLUXDB_INIT_BUCKET: ${INFLUXDB_BUCKET}
+      DOCKER_INFLUXDB_INIT_ADMIN_TOKEN: ${INFLUXDB_ADMIN_TOKEN}
+    volumes:
+      - influxdb-data:/var/lib/influxdb2
+    networks:
+      - vpc-net
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana:10.4.0
+    ports:
+      - "3000:3000"
+    env_file: .env
+    environment:
+      GF_SECURITY_ADMIN_USER: ${GRAFANA_ADMIN_USER}
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD}
+      GF_USERS_ALLOW_SIGN_UP: "false"
+    volumes:
+      - ./grafana/provisioning:/etc/grafana/provisioning
+      - grafana-data:/var/lib/grafana
+    depends_on:
+      - influxdb
+    networks:
+      - vpc-net
+    restart: unless-stopped
+
+networks:
+  vpc-net:
+    driver: bridge
+
+volumes:
+  influxdb-data:
+  grafana-data:
