@@ -41,6 +41,11 @@ def _on_alert(data):
     socketio.emit("alert", data)
     log.info("Alert relayed: %s", data.get("type"))
 
+@bg_sio.on("flow")
+def _on_flow(data):
+    """Receive flow event from Anomaly Detector and relay to browsers."""
+    socketio.emit("flow", data)
+
 def _connect_upstream():
     """Connect to Anomaly Detector WebSocket in background thread."""
     try:

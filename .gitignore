@@ -13,3 +13,8 @@ htmlcov/
 *.log
 data/
 *.csv
+setup.groovy
+terminal_history.html
+pwd.txt
+verify_phase4.py
+get-shit-done-antigravity/

@@ -52,6 +52,21 @@ docker-compose up --build
 # InfluxDB:   http://localhost:8086
 ```
 
+## Dataset Setup
+
+VPC-Stream uses the CICIDS2017 dataset for realistic network traffic simulation.
+
+1. Download the dataset:
+   - Source: https://www.unb.ca/cic/datasets/ids-2017.html
+   - Or: Hugging Face mirror — search "c01dsnap/CIC-IDS2017"
+   - File: Friday-WorkingHours-Afternoon-DDos.pcap_ISCX.csv
+
+2. Place it at:
+   ./data/cicids2017.csv
+
+3. The data/ folder is excluded from git by design (.gitignore).
+   Never commit the dataset — it is 70MB+.
+
 ## Project Structure
 
 ```
