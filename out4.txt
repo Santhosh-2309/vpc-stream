@@ -1,0 +1,30 @@
+﻿============================= test session starts =============================
+platform win32 -- Python 3.12.6, pytest-9.0.2, pluggy-1.6.0
+rootdir: C:\Users\Admin\.gemini\antigravity\scratch
+plugins: anyio-4.9.0, Faker-33.1.0
+collected 25 items
+
+log-generator\tests\test_app.py .........                                [ 36%]
+anomaly-detector\tests\test_detection.py ...F.....                       [ 72%]
+dashboard\tests\test_app.py .......                                      [100%]
+
+================================== FAILURES ===================================
+_____________________ test_log_accepted_with_valid_token ______________________
+anomaly-detector\tests\test_detection.py:54: in test_log_accepted_with_valid_token
+    with patch("app._write_anomaly"):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\AppData\Local\Programs\Python\Python312\Lib\unittest\mock.py:1461: in __enter__
+    original, local = self.get_original()
+                      ^^^^^^^^^^^^^^^^^^^
+..\..\..\AppData\Local\Programs\Python\Python312\Lib\unittest\mock.py:1434: in get_original
+    raise AttributeError(
+E   AttributeError: <module 'app' from 'C:\\Users\\Admin\\.gemini\\antigravity\\scratch\\dashboard\\app.py'> does not have the attribute '_write_anomaly'
+============================== warnings summary ===============================
+..\..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\flask_limiter\extension.py:333
+  C:\Users\Admin\AppData\Local\Programs\Python\Python312\Lib\site-packages\flask_limiter\extension.py:333: UserWarning: Using the in-memory storage for tracking rate limits as no storage was explicitly specified. This is not recommended for production use. See: https://flask-limiter.readthedocs.io#configuring-a-storage-backend for documentation about configuring the storage backend.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED anomaly-detector/tests/test_detection.py::test_log_accepted_with_valid_token
+=================== 1 failed, 24 passed, 1 warning in 5.72s ===================

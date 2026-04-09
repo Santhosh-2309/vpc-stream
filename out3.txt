@@ -1,0 +1,24 @@
+﻿============================= test session starts =============================
+platform win32 -- Python 3.12.6, pytest-9.0.2, pluggy-1.6.0
+rootdir: C:\Users\Admin\.gemini\antigravity\scratch
+plugins: anyio-4.9.0, Faker-33.1.0
+collected 16 items / 1 error
+
+=================================== ERRORS ====================================
+__________ ERROR collecting anomaly-detector/tests/test_detection.py __________
+ImportError while importing test module 'C:\Users\Admin\.gemini\antigravity\scratch\anomaly-detector\tests\test_detection.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+anomaly-detector\tests\test_detection.py:22: in <module>
+    from app import app, _detect, _req_times, _port_hist
+E   ImportError: cannot import name '_detect' from 'app' (C:\Users\Admin\.gemini\antigravity\scratch\log-generator\app.py)
+============================== warnings summary ===============================
+..\..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\flask_limiter\extension.py:333
+  C:\Users\Admin\AppData\Local\Programs\Python\Python312\Lib\site-packages\flask_limiter\extension.py:333: UserWarning: Using the in-memory storage for tracking rate limits as no storage was explicitly specified. This is not recommended for production use. See: https://flask-limiter.readthedocs.io#configuring-a-storage-backend for documentation about configuring the storage backend.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+ERROR anomaly-detector/tests/test_detection.py
+!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!
+========================= 1 warning, 1 error in 4.15s =========================

@@ -1,0 +1,36 @@
+﻿docker : [2026-04-08 
+03:20:42 +0000] [1] 
+[INFO] Starting gunicorn 
+21.2.0
+At line:1 char:171
++ ... 4.txt 2>&1; docker 
+logs scratch-anomaly-detec
+tor-1 --tail 30 > temp_d 
+...
++                 ~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo        
+      : NotSpecified: ([  
+  2026-04-08 03:...guni   
+ corn 21.2.0:String) [    
+], RemoteException
+    + FullyQualifiedError 
+   Id : NativeCommandErr  
+  or
+ 
+[2026-04-08 03:20:42 
++0000] [1] [INFO] 
+Listening at: 
+http://0.0.0.0:5002 (1)
+[2026-04-08 03:20:42 
++0000] [1] [INFO] Using 
+worker: eventlet
+[2026-04-08 03:20:42 
++0000] [7] [INFO] Booting 
+worker with pid: 7
+2026-04-08 03:23:14,403 
+[WARNING] ANOMALY: 
+Unauthorized | CRITICAL | 
+Blocked IP 10.0.0.5 
+attempted access

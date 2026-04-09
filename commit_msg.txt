@@ -1,0 +1,8 @@
+fix: remove exposed credentials and add flow relay
+
+  - Remove setup.groovy (hardcoded Jenkins credentials)
+  - Remove terminal_history.html (exposed admin passwords)
+  - Remove pwd.txt and verify_phase4.py (dev artifacts)
+  - Remove broken get-shit-done-antigravity submodule
+  - Add flow event relay in dashboard/app.py
+  - Add dataset setup instructions to README

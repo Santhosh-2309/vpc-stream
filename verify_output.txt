@@ -1,0 +1,60 @@
+﻿=== VERIFICATION ===
+
+log-generator:
+  Dockerfile lines:  21
+  python:3.11-slim:  True
+  appuser:           True
+  ARG VERSION:       True
+  LABEL version:     True
+  EXPOSE 5001:       True
+  gunicorn in req:   True
+
+anomaly-detector:
+  Dockerfile lines:  21
+  python:3.11-slim:  True
+  appuser:           True
+  ARG VERSION:       True
+  LABEL version:     True
+  EXPOSE 5002:       True
+  gunicorn in req:   True
+  eventlet in req:   True
+  eventlet in CMD:   True
+
+dashboard:
+  Dockerfile lines:  22
+  python:3.11-slim:  True
+  appuser:           True
+  ARG VERSION:       True
+  LABEL version:     True
+  EXPOSE 5003:       True
+  gunicorn in req:   True
+  eventlet in req:   True
+  eventlet in CMD:   True
+
+=== REQUIREMENTS ===
+
+--- log-generator/requirements.txt ---
+flask==3.1.0
+flask-limiter==3.8.0
+pandas==2.2.3
+requests==2.32.3
+python-dotenv==1.0.1
+gunicorn==21.2.0
+
+--- anomaly-detector/requirements.txt ---
+flask==3.1.0
+flask-socketio==5.4.1
+influxdb-client==1.46.0
+python-dotenv==1.0.1
+gunicorn==21.2.0
+eventlet==0.36.1
+
+--- dashboard/requirements.txt ---
+flask==3.1.0
+flask-socketio==5.4.1
+requests==2.32.3
+python-dotenv==1.0.1
+python-socketio[client]==5.12.1
+gunicorn==21.2.0
+eventlet==0.36.1
+

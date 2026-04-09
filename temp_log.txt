@@ -1,0 +1,8 @@
+[2026-04-08 03:14:00 +0000] [1] [INFO] Starting gunicorn 21.2.0
+[2026-04-08 03:14:00 +0000] [1] [INFO] Listening at: http://0.0.0.0:5001 (1)
+[2026-04-08 03:14:00 +0000] [1] [INFO] Using worker: sync
+[2026-04-08 03:14:00 +0000] [7] [INFO] Booting worker with pid: 7
+/usr/local/lib/python3.11/site-packages/flask_limiter/extension.py:333: UserWarning: Using the in-memory storage for tracking rate limits as no storage was explicitly specified. This is not recommended for production use. See: https://flask-limiter.readthedocs.io#configuring-a-storage-backend for documentation about configuring the storage backend.
+  warnings.warn(
+2026-04-08 03:14:05,145 [INFO] Loading CICIDS2017 dataset from ./data/cicids2017.csv …
+2026-04-08 03:14:10,449 [INFO] Loaded 225745 rows, 79 columns.

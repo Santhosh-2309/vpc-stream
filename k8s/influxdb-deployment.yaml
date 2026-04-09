@@ -1,0 +1,76 @@
+# kubectl create secret generic influxdb-secret \
+#   --from-literal=admin-password=YOUR_PASSWORD \
+#   --from-literal=admin-token=YOUR_TOKEN
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: influxdb
+  labels:
+    app: vpc-stream
+    tier: database
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: vpc-stream
+      tier: database
+  template:
+    metadata:
+      labels:
+        app: vpc-stream
+        tier: database
+    spec:
+      containers:
+        - name: influxdb
+          image: influxdb:2.7
+          ports:
+            - containerPort: 8086
+          env:
+            - name: DOCKER_INFLUXDB_INIT_MODE
+              value: "setup"
+            - name: DOCKER_INFLUXDB_INIT_USERNAME
+              value: "vpcadmin"
+            - name: DOCKER_INFLUXDB_INIT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: influxdb-secret
+                  key: admin-password
+            - name: DOCKER_INFLUXDB_INIT_ORG
+              value: "vpc_stream_org"
+            - name: DOCKER_INFLUXDB_INIT_BUCKET
+              value: "vpc_stream"
+            - name: DOCKER_INFLUXDB_INIT_ADMIN_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: influxdb-secret
+                  key: admin-token
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+          volumeMounts:
+            - name: influxdb-data
+              mountPath: /var/lib/influxdb2
+      volumes:
+        - name: influxdb-data
+          persistentVolumeClaim:
+            claimName: influxdb-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: influxdb
+  labels:
+    app: vpc-stream
+    tier: database
+spec:
+  type: ClusterIP
+  ports:
+    - port: 8086
+      targetPort: 8086
+  selector:
+    app: vpc-stream
+    tier: database

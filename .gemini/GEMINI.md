@@ -25,11 +25,13 @@ Stream real CICIDS2017 network traffic logs in AWS VPC Flow Log format, detect 3
 - Log Format: AWS VPC Flow Log format
 
 ## Microservice Communication
+```
 Log Generator → HTTP POST (with X-Internal-Token) → Anomaly Detector
 Anomaly Detector → WebSocket → Dashboard
 Anomaly Detector → influxdb-client → InfluxDB
 Dashboard → Browser renders live alerts + control panel
 Grafana → queries InfluxDB → historical dashboards
+```
 
 ## Anomaly Types
 1. DDoS — request rate exceeds 500 req/s from single source IP

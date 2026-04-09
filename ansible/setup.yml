@@ -1,0 +1,131 @@
+---
+- name: VPC-Stream Environment Setup
+  hosts: all
+  become: true
+  vars:
+    docker_version: "26.1.4"
+    minikube_version: "1.33.1"
+    kubectl_version: "1.30.2"
+    jenkins_version: "2.462.1"
+
+  tasks:
+    - name: BLOCK 1 — System Prerequisites
+      block:
+        - name: Update apt cache
+          apt:
+            update_cache: yes
+            cache_valid_time: 3600
+
+        - name: Install required packages
+          apt:
+            name:
+              - apt-transport-https
+              - ca-certificates
+              - curl
+              - gnupg
+              - lsb-release
+              - software-properties-common
+              - git
+            state: present
+
+    - name: BLOCK 2 — Install Docker
+      block:
+        - name: Create apt keyrings directory
+          file:
+            path: /etc/apt/keyrings
+            state: directory
+            mode: '0755'
+
+        - name: Download Docker GPG key
+          get_url:
+            url: https://download.docker.com/linux/ubuntu/gpg
+            dest: /etc/apt/keyrings/docker.asc
+            mode: '0644'
+            force: false
+
+        - name: Add Docker apt repository
+          apt_repository:
+            repo: "deb [arch=amd64 signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu {{ ansible_distribution_release | default('jammy') }} stable"
+            state: present
+            filename: docker-ce
+
+        - name: Install docker-ce, docker-ce-cli, containerd.io, and compose plugin
+          apt:
+            name:
+              - "docker-ce=5:{{ docker_version }}-1~ubuntu.{{ ansible_distribution_release | default('jammy') }}~{{ ansible_distribution_release | default('jammy') }}"
+              - "docker-ce-cli=5:{{ docker_version }}-1~ubuntu.{{ ansible_distribution_release | default('jammy') }}~{{ ansible_distribution_release | default('jammy') }}"
+              - containerd.io
+              - docker-compose-plugin
+            state: present
+            allow_downgrade: yes
+
+        - name: Ensure Docker service is started and enabled
+          service:
+            name: docker
+            state: started
+            enabled: yes
+
+        - name: Add current user to docker group
+          user:
+            name: "{{ ansible_user_id | default(ansible_env.SUDO_USER | default('ubuntu')) }}"
+            groups: docker
+            append: yes
+
+    - name: BLOCK 3 — Install kubectl
+      block:
+        - name: Download kubectl binary
+          get_url:
+            url: "https://dl.k8s.io/release/v{{ kubectl_version }}/bin/linux/amd64/kubectl"
+            dest: /usr/local/bin/kubectl
+            mode: '0755'
+            creates: /usr/local/bin/kubectl
+
+        - name: Verify kubectl version
+          command: kubectl version --client
+          register: kubectl_ver
+          changed_when: false
+
+    - name: BLOCK 4 — Install Minikube
+      block:
+        - name: Download minikube binary
+          get_url:
+            url: "https://storage.googleapis.com/minikube/releases/v{{ minikube_version }}/minikube-linux-amd64"
+            dest: /usr/local/bin/minikube
+            mode: '0755'
+            creates: /usr/local/bin/minikube
+
+        - name: Verify minikube version
+          command: minikube version
+          register: minikube_ver
+          changed_when: false
+
+    - name: BLOCK 5 — Install Jenkins
+      block:
+        - name: Download Jenkins GPG key
+          get_url:
+            url: https://pkg.jenkins.io/debian-stable/jenkins.io-2023.key
+            dest: /usr/share/keyrings/jenkins-keyring.asc
+            mode: '0644'
+            force: false
+
+        - name: Add Jenkins apt repository
+          apt_repository:
+            repo: "deb [signed-by=/usr/share/keyrings/jenkins-keyring.asc] https://pkg.jenkins.io/debian-stable binary/"
+            state: present
+            filename: jenkins
+
+        - name: Install jenkins
+          apt:
+            name: "jenkins={{ jenkins_version }}"
+            state: present
+            allow_downgrade: yes
+
+        - name: Ensure Jenkins service is started and enabled
+          service:
+            name: jenkins
+            state: started
+            enabled: yes
+
+        - name: Print Jenkins reminder message
+          debug:
+            msg: "Jenkins installed. Change admin password immediately on first login."
