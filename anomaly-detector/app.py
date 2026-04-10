@@ -4,6 +4,7 @@ import os
 import sys
 from collections import defaultdict, deque
 from datetime import datetime, timezone
+import time
 
 from dotenv import load_dotenv
 from flask import Flask, jsonify, request
@@ -25,47 +26,61 @@ for var in REQUIRED:
 
 PORT = int(os.environ.get("ANOMALY_DETECTOR_PORT"))
 TOKEN = os.environ.get("INTERNAL_TOKEN")
-DDOS_THRESH = int(os.environ.get("DDOS_THRESHOLD"))
+DDOS_THRESH = int(os.environ.get("DDOS_THRESHOLD", "30"))
 BLOCKED = set(ip.strip() for ip in os.environ.get("BLOCKED_IPS", "").split(",") if ip.strip())
 
 app = Flask(__name__)
 socketio = SocketIO(app, cors_allowed_origins="*")
 
-influx = InfluxDBClient(url=os.environ.get("INFLUXDB_URL"),
-                        token=os.environ.get("INFLUXDB_TOKEN"), org=os.environ.get("INFLUXDB_ORG"))
-write_api = influx.write_api(write_options=SYNCHRONOUS)
+_influx_client = None
+_write_api = None
+
+def _get_write_api():
+    """Get or create InfluxDB write API lazily."""
+    global _influx_client, _write_api
+    if _write_api is None:
+        try:
+            _influx_client = InfluxDBClient(
+                url=os.environ["INFLUXDB_URL"],
+                token=os.environ["INFLUXDB_TOKEN"],
+                org=os.environ["INFLUXDB_ORG"]
+            )
+            _write_api = _influx_client.write_api(
+                write_options=SYNCHRONOUS
+            )
+        except Exception:
+            log.exception("Failed to connect to InfluxDB")
+            return None
+    return _write_api
 BUCKET = os.environ.get("INFLUXDB_BUCKET")
 
 # In-memory state for anomaly detection
-_req_times = defaultdict(list)   # srcaddr → [timestamps]
-_port_hist = defaultdict(lambda: deque(maxlen=10))  # srcaddr → deque of dstports
+_ddos_timestamps = defaultdict(deque)  # srcaddr -> deque of timestamps
+_port_scan_data = defaultdict(dict)  # srcaddr -> {port: last_seen_time}
 
 LOG_FIELDS = ["srcaddr", "dstaddr", "dstport", "protocol", "packets", "bytes", "action"]
-
-
+def _check_ddos(src):
+    """Detect DDoS: >DDOS_THRESHOLD requests in 5s window."""
+    now = time.time()
+    window = 5.0
+    timestamps = _ddos_timestamps[src]
+    timestamps.append(now)
+    while timestamps and timestamps[0] < now - window:
+        timestamps.popleft()
+    return len(timestamps) > DDOS_THRESH
+def _check_port_scan(src, port):
+    now = time.time(); p = _port_scan_data[src]; p[port] = now
+    for k in [k for k, v in p.items() if v < now - 10.0]: del p[k]
+    return len(p) > 5
 def _detect(entry):
-    """Run all 3 anomaly checks and return list of anomaly dicts."""
-    src = entry["srcaddr"]
-    now = datetime.now(timezone.utc).timestamp()
-    anomalies = []
-    # 1. DDoS — request rate per srcaddr
-    _req_times[src] = [t for t in _req_times[src] if now - t < 1.0]
-    _req_times[src].append(now)
-    if len(_req_times[src]) > DDOS_THRESH:
-        anomalies.append({"type": "DDoS", "severity": "CRITICAL", "src_ip": src,
-                          "detail": f"{len(_req_times[src])} req/s from {src}"})
-    # 2. PortScan — sequential ports
-    _port_hist[src].append(entry["dstport"])
-    if len(_port_hist[src]) >= 5:
-        last5 = list(_port_hist[src])[-5:]
-        if last5 == list(range(last5[0], last5[0] + 5)):
-            anomalies.append({"type": "PortScan", "severity": "WARNING", "src_ip": src,
-                              "detail": f"Sequential ports {last5} from {src}"})
-    # 3. Unauthorized — blocked IP
+    anoms, src, p = [], entry["srcaddr"], entry["dstport"]
+    if _check_ddos(src):
+        anoms.append({"type": "DDoS", "severity": "CRITICAL", "src_ip": src, "detail": f"DDoS detected: high request rate from {src}"})
+    if _check_port_scan(src, p):
+        anoms.append({"type": "PortScan", "severity": "WARNING", "src_ip": src, "detail": f"Port scan detected: multiple ports from {src}"})
     if src in BLOCKED:
-        anomalies.append({"type": "Unauthorized", "severity": "CRITICAL", "src_ip": src,
-                          "detail": f"Blocked IP {src} attempted access"})
-    return anomalies
+        anoms.append({"type": "Unauthorized", "severity": "CRITICAL", "src_ip": src, "detail": f"Blocked IP {src} attempted access"})
+    return anoms
 
 
 def _write_log(entry):
@@ -75,7 +90,9 @@ def _write_log(entry):
          .tag("protocol", str(entry["protocol"]))
          .field("packets", entry["packets"]).field("bytes", entry["bytes"])
          .field("action", entry["action"]))
-    write_api.write(bucket=BUCKET, record=p)
+    api = _get_write_api()
+    if api:
+        api.write(bucket=BUCKET, record=p)
 
 
 def _write_anomaly(a):
@@ -84,7 +101,9 @@ def _write_anomaly(a):
     p = (Point("anomaly_events")
          .tag("type", a["type"]).tag("severity", a["severity"]).tag("src_ip", a["src_ip"])
          .field("detail", a["detail"]))
-    write_api.write(bucket=BUCKET, record=p)
+    api = _get_write_api()
+    if api:
+        api.write(bucket=BUCKET, record=p)
     socketio.emit("alert", {**a, "timestamp": ts})
     log.warning("ANOMALY: %s | %s | %s", a["type"], a["severity"], a["detail"])
 

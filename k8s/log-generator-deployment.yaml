@@ -38,25 +38,35 @@ spec:
                   key: internal-token
             - name: LOG_RATE_LIMIT
               value: "10"
+            - name: GUNICORN_CMD_ARGS
+              value: "--timeout 120"
           resources:
             requests:
               cpu: "100m"
-              memory: "128Mi"
+              memory: "256Mi"
             limits:
               cpu: "500m"
-              memory: "512Mi"
+              memory: "2048Mi"
           livenessProbe:
             httpGet:
               path: /health
               port: 5001
-            initialDelaySeconds: 15
+            initialDelaySeconds: 180
             periodSeconds: 20
           readinessProbe:
             httpGet:
               path: /health
               port: 5001
-            initialDelaySeconds: 10
+            initialDelaySeconds: 180
             periodSeconds: 10
+          volumeMounts:
+            - name: data-volume
+              mountPath: /data
+      volumes:
+        - name: data-volume
+          hostPath:
+            path: /data
+            type: Directory
 ---
 apiVersion: v1
 kind: Service

@@ -18,4 +18,4 @@ USER appuser
 
 EXPOSE 5002
 
-CMD ["gunicorn", "--worker-class", "eventlet", "-w", "1", "--bind", "0.0.0.0:5002", "app:app"]
+CMD ["gunicorn", "--worker-class", "eventlet", "-w", "1", "--bind", "0.0.0.0:5002", "--timeout", "120", "--graceful-timeout", "30", "app:app"]

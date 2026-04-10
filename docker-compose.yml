@@ -1,5 +1,3 @@
-version: "3.9"
-
 services:
   log-generator:
     image: vpc-stream/log-generator:1.0.0
@@ -22,7 +20,8 @@ services:
       - "5002:5002"
     env_file: .env
     depends_on:
-      - influxdb
+      influxdb:
+        condition: service_healthy
     networks:
       - vpc-net
     restart: unless-stopped
@@ -56,6 +55,12 @@ services:
     networks:
       - vpc-net
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8086/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
 
   grafana:
     image: grafana/grafana:10.4.0

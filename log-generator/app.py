@@ -54,15 +54,17 @@ def _to_vpc_log(row, idx):
     dport = int(row["Destination Port"])
 
     remainder = idx % 10
-    if remainder < 7:
-        srcaddr = "10.0.1.1"
+    if remainder < 5:
+        srcaddr = "10.0.1.1"     # DDoS — 50% of traffic
+    elif remainder < 7:
+        srcaddr = "10.0.2.1"     # Port Scanner — 20% of traffic
     elif remainder < 9:
-        srcaddr = "10.0.0.5"
+        srcaddr = "10.0.0.5"     # Unauthorized — 20% of traffic
     else:
-        srcaddr = f"10.0.2.{idx % 256}"
+        srcaddr = f"10.0.3.{idx % 50}"  # Varied — 10% of traffic
 
-    dst_pool = [f"10.1.0.{i}" for i in range(1, 21)]
-    dstaddr = dst_pool[idx % 20]
+    dst_pool = [f"10.1.{i//10}.{i%10}" for i in range(1, 51)]
+    dstaddr = dst_pool[idx % 50]
 
     return {
         "srcaddr": srcaddr,
