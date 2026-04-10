@@ -14,7 +14,7 @@
       "targets": [
         {
           "refId": "A",
-          "query": "from(bucket: \"vpc_stream\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"vpc_logs\")\n  |> filter(fn: (r) => r._field == \"packets\")\n  |> aggregateWindow(every: 10s, fn: count, createEmpty: false)\n  |> yield(name: \"traffic_rate\")"
+          "query": "from(bucket: \"vpc_stream\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"vpc_logs\")\n  |> filter(fn: (r) => r._field == \"packets\")\n  |> aggregateWindow(every: 30s, fn: count, createEmpty: false)\n  |> yield(name: \"traffic\")"
         }
       ],
       "fieldConfig": {
@@ -34,21 +34,18 @@
     {
       "id": 2,
       "title": "Anomaly Count by Type",
-      "type": "bargauge",
+      "type": "barchart",
       "gridPos": { "h": 8, "w": 12, "x": 0, "y": 8 },
       "datasource": { "type": "influxdb", "uid": "vpc-stream-influxdb" },
       "targets": [
         {
           "refId": "A",
-          "query": "from(bucket: \"vpc_stream\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"anomaly_events\")\n  |> filter(fn: (r) => r._field == \"detail\")\n  |> group(columns: [\"type\"])\n  |> count()\n  |> group()"
+          "query": "from(bucket: \"vpc_stream\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"anomaly_events\")\n  |> filter(fn: (r) => r._field == \"detail\")\n  |> group(columns: [\"type\"])\n  |> count()\n  |> group()\n  |> rename(columns: {\"_value\": \"Count\", \"type\": \"Anomaly Type\"})"
         }
       ],
       "options": {
-        "orientation": "horizontal",
-        "displayMode": "gradient",
-        "reduceOptions": {
-          "calcs": ["lastNotNull"]
-        }
+        "orientation": "auto",
+        "xField": "Anomaly Type"
       },
       "fieldConfig": {
         "defaults": {
