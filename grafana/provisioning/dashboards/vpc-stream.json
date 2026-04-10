@@ -1,45 +1,92 @@
 {
-  "title": "VPC-Stream Network Monitor",
   "uid": "vpc-stream-main",
+  "title": "VPC-Stream Network Monitor",
   "schemaVersion": 38,
   "refresh": "5s",
+  "time": { "from": "now-1h", "to": "now" },
   "panels": [
     {
+      "id": 1,
       "title": "Traffic Rate Over Time",
       "type": "timeseries",
-      "gridPos": { "h": 9, "w": 24, "x": 0, "y": 0 },
+      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 0 },
+      "datasource": { "type": "influxdb", "uid": "vpc-stream-influxdb" },
       "targets": [
         {
-          "query": "from(bucket: \"vpc_stream\") |> range(start: v.timeRangeStart, stop: v.timeRangeStop) |> filter(fn: (r) => r._measurement == \"vpc_logs\") |> aggregateWindow(every: 1s, fn: count)",
-          "refId": "A"
+          "refId": "A",
+          "query": "from(bucket: \"vpc_stream\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"vpc_logs\")\n  |> filter(fn: (r) => r._field == \"packets\")\n  |> aggregateWindow(every: 10s, fn: count, createEmpty: false)\n  |> yield(name: \"traffic_rate\")"
         }
-      ]
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": {
+            "lineWidth": 2,
+            "fillOpacity": 20
+          }
+        }
+      },
+      "options": {
+        "legend": { "displayMode": "list", "placement": "bottom" },
+        "tooltip": { "mode": "single" }
+      }
     },
     {
+      "id": 2,
       "title": "Anomaly Count by Type",
-      "type": "barchart",
-      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 9 },
+      "type": "bargauge",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 8 },
+      "datasource": { "type": "influxdb", "uid": "vpc-stream-influxdb" },
       "targets": [
         {
-          "query": "from(bucket: \"vpc_stream\") |> range(start: v.timeRangeStart, stop: v.timeRangeStop) |> filter(fn: (r) => r._measurement == \"anomaly_events\") |> group(columns: [\"type\"]) |> count()",
-          "refId": "A"
+          "refId": "A",
+          "query": "from(bucket: \"vpc_stream\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"anomaly_events\")\n  |> filter(fn: (r) => r._field == \"detail\")\n  |> group(columns: [\"type\"])\n  |> count()\n  |> group()"
         }
-      ]
+      ],
+      "options": {
+        "orientation": "horizontal",
+        "displayMode": "gradient",
+        "reduceOptions": {
+          "calcs": ["lastNotNull"]
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "orange", "value": 10 },
+              { "color": "red", "value": 50 }
+            ]
+          }
+        }
+      }
     },
     {
+      "id": 3,
       "title": "Top Source IPs",
       "type": "table",
-      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 9 },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 8 },
+      "datasource": { "type": "influxdb", "uid": "vpc-stream-influxdb" },
       "targets": [
         {
-          "query": "from(bucket: \"vpc_stream\") |> range(start: v.timeRangeStart, stop: v.timeRangeStop) |> filter(fn: (r) => r._measurement == \"vpc_logs\") |> group(columns: [\"srcaddr\"]) |> count() |> sort(columns: [\"_value\"], desc: true) |> limit(n: 10)",
-          "refId": "A"
+          "refId": "A",
+          "query": "from(bucket: \"vpc_stream\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"vpc_logs\")\n  |> filter(fn: (r) => r._field == \"packets\")\n  |> group(columns: [\"srcaddr\"])\n  |> count()\n  |> group()\n  |> sort(columns: [\"_value\"], desc: true)\n  |> limit(n: 10)\n  |> rename(columns: {\"srcaddr\": \"Source IP\", \"_value\": \"Request Count\"})"
         }
-      ]
+      ],
+      "options": {
+        "showHeader": true,
+        "sortBy": [{ "displayName": "Request Count", "desc": true }]
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "left",
+            "displayMode": "auto"
+          }
+        }
+      }
     }
-  ],
-  "time": {
-    "from": "now-1h",
-    "to": "now"
-  }
+  ]
 }
