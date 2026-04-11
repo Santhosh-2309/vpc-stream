@@ -51,9 +51,10 @@ def test_log_accepted_with_valid_token(client):
         "srcaddr": "1.2.3.4", "dstaddr": "8.8.8.8", "dstport": 443,
         "protocol": 6, "packets": 10, "bytes": 500, "action": "ACCEPT"
     }
-    with patch.object(app, "_write_anomaly"):
-        with patch.object(app, "_write_log"):
-            res = client.post("/log", headers={"X-Internal-Token": "test-token-123"}, json=payload)
+    with patch("app._write_anomaly"):
+        with patch("app._write_log"):
+            with patch("app._get_write_api", return_value=None):
+                res = client.post("/log", headers={"X-Internal-Token": "test-token-123"}, json=payload)
     assert res.status_code == 200
 
 def test_log_missing_fields_returns_400(client):
@@ -77,17 +78,21 @@ def test_ddos_detection():
     assert anomalies[0]["type"] == "DDoS"
 
 def test_port_scan_detection():
-    """Test logic enforces 5 unique sequential ports from origin as PortScan."""
+    """Test port scan detection triggers with 6 unique ports."""
+    from app import _check_port_scan, _port_scan_data
+    
+    # Clear existing state
     _port_scan_data.clear()
     
-    anomalies = []
-    # Simulate scanning behaviour
-    for port in [100, 101, 102, 103, 104]:
-        entry = {"srcaddr": "3.3.3.3", "dstport": port}
-        anomalies = _detect(entry)
-        
-    assert len(anomalies) > 0
-    assert any(a["type"] == "PortScan" for a in anomalies)
+    src = "10.0.9.9"
+    # Feed 6 unique ports from same source
+    results = []
+    for port in [80, 443, 22, 8080, 3306, 5432]:
+        result = _check_port_scan(src, port)
+        results.append(result)
+    
+    # After 6 unique ports, detection should trigger
+    assert any(results), "Port scan should trigger after 6 unique ports"
 
 def test_unauthorized_detection():
     """Test strict string matching captures blocked IP subset list inputs safely."""

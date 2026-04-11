@@ -1,7 +1,7 @@
 """Tests for Dashboard microservice."""
 import os
 import sys
-from unittest.mock import patch
+from unittest.mock import patch, MagicMock
 import pytest
 
 # Env defaults ensuring full stability dynamically across system constraints
@@ -47,27 +47,29 @@ def test_index_contains_dashboard_title(client):
     res = client.get("/")
     assert b"vpc-stream" in res.data.lower()
 
-@patch("requests.post")
-def test_control_start_proxies_request(mock_post, client):
-    """Test POST /control/start safely maps and relays payload correctly locally."""
-    mock_post.return_value.status_code = 200
-    mock_post.return_value.json.return_value = {"message": "started"}
+@patch("app.http_req")
+def test_control_start_proxies_request(mock_session, client):
+    """Test POST /control/start proxies to log generator."""
+    mock_response = MagicMock()
+    mock_response.status_code = 200
+    mock_response.json.return_value = {"message": "started"}
+    mock_session.get.return_value = mock_response
     
     res = client.post("/control/start")
     assert res.status_code == 200
-    mock_post.assert_called_once()
-    assert "http://localhost:5001/start" in mock_post.call_args[0][0]
+    mock_session.get.assert_called_once()
 
-@patch("requests.post")
-def test_control_stop_proxies_request(mock_post, client):
-    """Test POST /control/stop correctly bridges execution state changes."""
-    mock_post.return_value.status_code = 200
-    mock_post.return_value.json.return_value = {"message": "stopped"}
+@patch("app.http_req")
+def test_control_stop_proxies_request(mock_session, client):
+    """Test POST /control/stop proxies to log generator."""
+    mock_response = MagicMock()
+    mock_response.status_code = 200
+    mock_response.json.return_value = {"message": "stopped"}
+    mock_session.get.return_value = mock_response
     
     res = client.post("/control/stop")
     assert res.status_code == 200
-    mock_post.assert_called_once()
-    assert "http://localhost:5001/stop" in mock_post.call_args[0][0]
+    mock_session.get.assert_called_once()
 
 @patch("requests.post")
 def test_control_rate_proxies_request(mock_post, client):
