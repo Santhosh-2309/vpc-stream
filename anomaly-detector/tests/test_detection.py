@@ -20,7 +20,7 @@ patch("influxdb_client.InfluxDBClient").start()
 # Include app context path safely
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.modules.pop("app", None)
-from app import app, _detect, _req_times, _port_hist
+from app import app, _detect, _ddos_timestamps, _port_scan_data
 
 @pytest.fixture
 def client():
@@ -65,7 +65,7 @@ def test_log_missing_fields_returns_400(client):
 def test_ddos_detection():
     """Test core logic evaluates and alerts DDos patterns correctly after thresholds breached."""
     # Reset temporal contexts effectively
-    _req_times.clear()
+    _ddos_timestamps.clear()
     entry = {"srcaddr": "2.2.2.2", "dstport": 80}
     
     anomalies = []
@@ -78,7 +78,7 @@ def test_ddos_detection():
 
 def test_port_scan_detection():
     """Test logic enforces 5 unique sequential ports from origin as PortScan."""
-    _port_hist.clear()
+    _port_scan_data.clear()
     
     anomalies = []
     # Simulate scanning behaviour
@@ -98,8 +98,8 @@ def test_unauthorized_detection():
 
 def test_benign_traffic_no_anomaly():
     """Test isolated acceptable logic checks pass through completely unscathed vs defaults."""
-    _req_times.clear()
-    _port_hist.clear()
+    _ddos_timestamps.clear()
+    _port_scan_data.clear()
     entry1 = {"srcaddr": "8.8.8.8", "dstport": 80}
     entry2 = {"srcaddr": "8.8.8.8", "dstport": 443}
     

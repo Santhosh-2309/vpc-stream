@@ -47,29 +47,29 @@ def test_index_contains_dashboard_title(client):
     res = client.get("/")
     assert b"vpc-stream" in res.data.lower()
 
-@patch.object(app.http_req, "get")
-def test_control_start_proxies_request(mock_get, client):
+@patch("requests.post")
+def test_control_start_proxies_request(mock_post, client):
     """Test POST /control/start safely maps and relays payload correctly locally."""
-    mock_get.return_value.status_code = 200
-    mock_get.return_value.json.return_value = {"message": "started"}
+    mock_post.return_value.status_code = 200
+    mock_post.return_value.json.return_value = {"message": "started"}
     
     res = client.post("/control/start")
     assert res.status_code == 200
-    mock_get.assert_called_once()
-    assert "http://localhost:5001/start" in mock_get.call_args[0][0]
+    mock_post.assert_called_once()
+    assert "http://localhost:5001/start" in mock_post.call_args[0][0]
 
-@patch.object(app.http_req, "get")
-def test_control_stop_proxies_request(mock_get, client):
+@patch("requests.post")
+def test_control_stop_proxies_request(mock_post, client):
     """Test POST /control/stop correctly bridges execution state changes."""
-    mock_get.return_value.status_code = 200
-    mock_get.return_value.json.return_value = {"message": "stopped"}
+    mock_post.return_value.status_code = 200
+    mock_post.return_value.json.return_value = {"message": "stopped"}
     
     res = client.post("/control/stop")
     assert res.status_code == 200
-    mock_get.assert_called_once()
-    assert "http://localhost:5001/stop" in mock_get.call_args[0][0]
+    mock_post.assert_called_once()
+    assert "http://localhost:5001/stop" in mock_post.call_args[0][0]
 
-@patch.object(app.http_req, "post")
+@patch("requests.post")
 def test_control_rate_proxies_request(mock_post, client):
     """Test POST /control/rate enforces mapping against specified payload integers explicitly."""
     mock_post.return_value.status_code = 200
