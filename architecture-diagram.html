@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>VPC-Stream Architecture</title>
+<style>
+  body { margin: 0; padding: 0; background-color: #020408; font-family: sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+</style>
+</head>
+<body>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" width="1200" height="800">
+  <defs>
+    <!-- Filter for drop shadow -->
+    <filter id="shadow" x="-5%" y="-5%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="6" stdDeviation="6" flood-color="#000000" flood-opacity="0.6"/>
+    </filter>
+
+    <marker id="arrowPurple" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#8b5cf6" />
+    </marker>
+    <marker id="arrowBlue" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#3b82f6" />
+    </marker>
+    <marker id="arrowRed" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#e63946" />
+    </marker>
+    <marker id="arrowAmber" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#f59e0b" />
+    </marker>
+    <marker id="arrowOrange" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#f97316" />
+    </marker>
+    <marker id="arrowOrangeStart" markerWidth="10" markerHeight="10" refX="1" refY="5" orient="auto">
+      <path d="M 10 0 L 0 5 L 10 10 z" fill="#f97316" />
+    </marker>
+    <marker id="arrowGray" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#9ca3af" />
+    </marker>
+    <marker id="arrowWhite" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#ffffff" />
+    </marker>
+  </defs>
+
+  <rect width="1200" height="800" fill="#020408"/>
+
+  <!-- TITLES -->
+  <text x="500" y="40" font-family="sans-serif" font-size="28" font-weight="bold" fill="#ffffff" text-anchor="middle">VPC-Stream Architecture</text>
+  <text x="500" y="70" font-family="sans-serif" font-size="18" fill="#9ca3af" text-anchor="middle">Real-Time Network Anomaly Detection System</text>
+
+  <!-- BOUNDARIES -->
+  <rect x="110" y="295" width="820" height="385" rx="12" fill="none" stroke="rgba(59,130,246,0.2)" stroke-width="3" stroke-dasharray="10 10"/>
+  <text x="120" y="315" font-family="sans-serif" font-size="14" fill="rgba(59,130,246,0.6)" font-weight="bold">Kubernetes: Minikube</text>
+
+  <rect x="130" y="325" width="780" height="345" rx="10" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="2" stroke-dasharray="6 6"/>
+  <text x="140" y="340" font-family="sans-serif" font-size="12" fill="rgba(255,255,255,0.4)">Docker Network: vpc-net</text>
+
+
+  <!-- ARROWS -->
+  <!-- 1. Dataset to Log Gen -->
+  <path d="M 430 150 L 260 150 L 260 335" fill="none" stroke="#8b5cf6" stroke-width="3" marker-end="url(#arrowPurple)"/>
+  <text x="270" y="145" font-family="sans-serif" font-size="12" fill="#8b5cf6">reads CSV rows</text>
+
+  <!-- 2. Log Gen to AD -->
+  <path d="M 360 415 L 420 415" fill="none" stroke="#3b82f6" stroke-width="3" marker-end="url(#arrowBlue)"/>
+  <text x="390" y="405" font-family="sans-serif" font-size="11" fill="#3b82f6" text-anchor="middle">HTTP POST /log</text>
+  <text x="390" y="435" font-family="sans-serif" font-size="10" fill="#3b82f6" text-anchor="middle">X-Internal-Token</text>
+
+  <!-- 3. AD to Dashboard -->
+  <path d="M 630 415 L 690 415" fill="none" stroke="#e63946" stroke-width="3" stroke-dasharray="6 4" marker-end="url(#arrowRed)"/>
+  <text x="660" y="405" font-family="sans-serif" font-size="11" fill="#e63946" text-anchor="middle">WebSocket emit('alert')</text>
+  <text x="660" y="435" font-family="sans-serif" font-size="10" fill="#e63946" text-anchor="middle">Real-time alerts</text>
+
+  <!-- 4. AD to InfluxDB -->
+  <path d="M 530 490 L 530 540" fill="none" stroke="#f59e0b" stroke-width="3" marker-end="url(#arrowAmber)"/>
+  <text x="540" y="515" font-family="sans-serif" font-size="11" fill="#f59e0b">influxdb-client write</text>
+  <text x="540" y="530" font-family="sans-serif" font-size="10" fill="#f59e0b">vpc_logs + anomaly_events</text>
+
+  <!-- 5. Grafana to InfluxDB -->
+  <path d="M 690 605 L 640 605" fill="none" stroke="#f97316" stroke-width="3" marker-start="url(#arrowOrangeStart)" marker-end="url(#arrowOrange)"/>
+  <text x="665" y="595" font-family="sans-serif" font-size="11" fill="#f97316" text-anchor="middle">Flux queries</text>
+
+  <!-- 6. Browser to Dashboard -->
+  <path d="M 120 280 L 800 280 L 800 330" fill="none" stroke="#ffffff" stroke-width="3" marker-end="url(#arrowWhite)"/>
+  <text x="450" y="272" font-family="sans-serif" font-size="12" fill="#ffffff" text-anchor="middle">WebSocket + HTTP</text>
+
+
+  <!-- LAYER 1: DATA SOURCE -->
+  <rect x="430" y="120" width="200" height="60" rx="6" fill="#1e1e2e" stroke="#8b5cf6" stroke-width="3" filter="url(#shadow)"/>
+  <text x="530" y="145" font-family="sans-serif" font-size="14" font-weight="bold" fill="#ffffff" text-anchor="middle">CICIDS2017 Dataset</text>
+  <text x="530" y="165" font-family="sans-serif" font-size="11" fill="#9ca3af" text-anchor="middle">225,745 real network flow records</text>
+  <path d="M 438 128 C 438 125, 448 125, 448 128 C 448 131, 438 131, 438 128 L 438 136 C 438 139, 448 139, 448 136 L 448 128" fill="none" stroke="#8b5cf6" stroke-width="1.5"/>
+
+  <!-- WEB BROWSER -->
+  <rect x="20" y="255" width="100" height="50" rx="6" fill="#1e1e2e" stroke="#ffffff" stroke-width="2" filter="url(#shadow)"/>
+  <text x="70" y="285" font-family="sans-serif" font-size="13" font-weight="bold" fill="#ffffff" text-anchor="middle">BROWSER</text>
+
+
+  <!-- LAYER 2: MICROSERVICES -->
+  <rect x="160" y="350" width="200" height="140" rx="8" fill="#0a1628" stroke="#3b82f6" stroke-width="4" filter="url(#shadow)"/>
+  <text x="260" y="375" font-family="sans-serif" font-size="14" font-weight="bold" fill="#ffffff" text-anchor="middle">LOG GENERATOR</text>
+  <text x="260" y="395" font-family="monospace" font-size="12" fill="#60a5fa" text-anchor="middle">Port: :5001</text>
+  <text x="260" y="420" font-family="sans-serif" font-size="12" fill="#d1d5db" text-anchor="middle">Streams VPC Flow Logs</text>
+  <circle cx="170" cy="440" r="3" fill="#3b82f6"/>
+  <text x="180" y="444" font-family="sans-serif" font-size="11" fill="#9ca3af">Flask + flask-limiter</text>
+  <circle cx="170" cy="458" r="3" fill="#3b82f6"/>
+  <text x="180" y="462" font-family="sans-serif" font-size="11" fill="#9ca3af">Rate: 10-1000 f/s</text>
+  <circle cx="170" cy="476" r="3" fill="#3b82f6"/>
+  <text x="180" y="480" font-family="sans-serif" font-size="11" fill="#9ca3af">X-Internal-Token auth</text>
+
+  <rect x="430" y="350" width="200" height="140" rx="8" fill="#0a1628" stroke="#e63946" stroke-width="4" filter="url(#shadow)"/>
+  <text x="530" y="375" font-family="sans-serif" font-size="14" font-weight="bold" fill="#ffffff" text-anchor="middle">ANOMALY DETECTOR</text>
+  <text x="530" y="395" font-family="monospace" font-size="12" fill="#f87171" text-anchor="middle">Port: :5002</text>
+  <text x="530" y="420" font-family="sans-serif" font-size="12" fill="#d1d5db" text-anchor="middle">Detects 3 Threat Types</text>
+  <circle cx="440" cy="440" r="3" fill="#e63946"/>
+  <text x="450" y="444" font-family="sans-serif" font-size="11" fill="#9ca3af">DDoS | PortScan | Unauthorized</text>
+  <circle cx="440" cy="458" r="3" fill="#e63946"/>
+  <text x="450" y="462" font-family="sans-serif" font-size="11" fill="#9ca3af">Flask + SocketIO</text>
+  <circle cx="440" cy="476" r="3" fill="#e63946"/>
+  <text x="450" y="480" font-family="sans-serif" font-size="11" fill="#9ca3af">Writes to InfluxDB</text>
+
+  <rect x="700" y="350" width="200" height="140" rx="8" fill="#0a1628" stroke="#22c55e" stroke-width="4" filter="url(#shadow)"/>
+  <text x="800" y="375" font-family="sans-serif" font-size="14" font-weight="bold" fill="#ffffff" text-anchor="middle">DASHBOARD</text>
+  <text x="800" y="395" font-family="monospace" font-size="12" fill="#4ade80" text-anchor="middle">Port: :5003</text>
+  <text x="800" y="420" font-family="sans-serif" font-size="12" fill="#d1d5db" text-anchor="middle">Real-Time SOC UI</text>
+  <circle cx="710" cy="440" r="3" fill="#22c55e"/>
+  <text x="720" y="444" font-family="sans-serif" font-size="11" fill="#9ca3af">Flask + SocketIO</text>
+  <circle cx="710" cy="458" r="3" fill="#22c55e"/>
+  <text x="720" y="462" font-family="sans-serif" font-size="11" fill="#9ca3af">Chart.js + WebSocket</text>
+  <circle cx="710" cy="476" r="3" fill="#22c55e"/>
+  <text x="720" y="480" font-family="sans-serif" font-size="11" fill="#9ca3af">SPA with 5 pages</text>
+
+
+  <!-- LAYER 3: INFRASTRUCTURE -->
+  <rect x="430" y="550" width="200" height="110" rx="8" fill="#0a1628" stroke="#f59e0b" stroke-width="4" filter="url(#shadow)"/>
+  <text x="530" y="575" font-family="sans-serif" font-size="14" font-weight="bold" fill="#ffffff" text-anchor="middle">INFLUXDB 2.7</text>
+  <text x="530" y="595" font-family="monospace" font-size="12" fill="#fbbf24" text-anchor="middle">Port: :8086</text>
+  <text x="530" y="620" font-family="sans-serif" font-size="12" fill="#d1d5db" text-anchor="middle">Time-Series Database</text>
+  <circle cx="440" cy="635" r="3" fill="#f59e0b"/>
+  <text x="450" y="639" font-family="sans-serif" font-size="11" fill="#9ca3af">Bucket: vpc_stream</text>
+  <circle cx="440" cy="650" r="3" fill="#f59e0b"/>
+  <text x="450" y="654" font-family="sans-serif" font-size="11" fill="#9ca3af">vpc_logs + anomaly_events</text>
+
+  <rect x="700" y="550" width="200" height="110" rx="8" fill="#0a1628" stroke="#f97316" stroke-width="4" filter="url(#shadow)"/>
+  <text x="800" y="575" font-family="sans-serif" font-size="14" font-weight="bold" fill="#ffffff" text-anchor="middle">GRAFANA 10.4</text>
+  <text x="800" y="595" font-family="monospace" font-size="12" fill="#fb923c" text-anchor="middle">Port: :3000</text>
+  <text x="800" y="620" font-family="sans-serif" font-size="12" fill="#d1d5db" text-anchor="middle">Historical Dashboards</text>
+  <circle cx="710" cy="635" r="3" fill="#f97316"/>
+  <text x="720" y="639" font-family="sans-serif" font-size="11" fill="#9ca3af">Auto-provisioned</text>
+  <circle cx="710" cy="650" r="3" fill="#f97316"/>
+  <text x="720" y="654" font-family="sans-serif" font-size="11" fill="#9ca3af">3 panels: Traffic, Anomalies, IPs</text>
+
+
+  <!-- LAYER 4: DEVOPS PIPELINE -->
+  <rect x="960" y="100" width="180" height="450" rx="12" fill="rgba(255,255,255,0.03)" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
+  <text x="1050" y="130" font-family="sans-serif" font-size="16" font-weight="bold" fill="#ffffff" text-anchor="middle">DevOps Pipeline</text>
+
+  <path d="M 1050 190 L 1050 215" fill="none" stroke="#9ca3af" stroke-width="2" marker-end="url(#arrowGray)"/>
+  <path d="M 1050 265 L 1050 290" fill="none" stroke="#9ca3af" stroke-width="2" marker-end="url(#arrowGray)"/>
+  <path d="M 1050 340 L 1050 365" fill="none" stroke="#9ca3af" stroke-width="2" marker-end="url(#arrowGray)"/>
+  <path d="M 1050 415 L 1050 440" fill="none" stroke="#9ca3af" stroke-width="2" marker-end="url(#arrowGray)"/>
+  
+  <rect x="980" y="150" width="140" height="40" rx="4" fill="#24292e" stroke="#e1e4e8" stroke-width="1" filter="url(#shadow)"/>
+  <text x="1050" y="175" font-family="sans-serif" font-size="14" fill="#ffffff" text-anchor="middle">GitHub</text>
+
+  <rect x="980" y="225" width="140" height="40" rx="4" fill="#1e1e2e" stroke="#d24939" stroke-width="2" filter="url(#shadow)"/>
+  <text x="1050" y="250" font-family="sans-serif" font-size="14" fill="#ffffff" text-anchor="middle">Jenkins CI/CD</text>
+
+  <rect x="980" y="300" width="140" height="40" rx="4" fill="#0db7ed" stroke="#099cec" stroke-width="2" filter="url(#shadow)"/>
+  <text x="1050" y="325" font-family="sans-serif" font-size="14" fill="#ffffff" text-anchor="middle">Docker Hub</text>
+
+  <rect x="980" y="375" width="140" height="40" rx="4" fill="#326ce5" stroke="#2555b7" stroke-width="2" filter="url(#shadow)"/>
+  <text x="1050" y="400" font-family="sans-serif" font-size="14" fill="#ffffff" text-anchor="middle">Kubernetes / Minikube</text>
+
+  <rect x="980" y="450" width="140" height="40" rx="4" fill="#ee0000" stroke="#cc0000" stroke-width="2" filter="url(#shadow)"/>
+  <text x="1050" y="475" font-family="sans-serif" font-size="14" fill="#ffffff" text-anchor="middle">Ansible Provisioning</text>
+
+
+  <!-- LEGEND -->
+  <rect x="20" y="660" width="160" height="110" rx="6" fill="#111827" stroke="#4b5563" stroke-width="1"/>
+  <text x="35" y="680" font-family="sans-serif" font-size="12" font-weight="bold" fill="#ffffff">Legend</text>
+  
+  <line x1="35" y1="695" x2="65" y2="695" stroke="#3b82f6" stroke-width="3"/>
+  <text x="80" y="700" font-family="sans-serif" font-size="11" fill="#d1d5db">HTTP/REST</text>
+
+  <line x1="35" y1="715" x2="65" y2="715" stroke="#e63946" stroke-width="3" stroke-dasharray="4 2"/>
+  <text x="80" y="720" font-family="sans-serif" font-size="11" fill="#d1d5db">WebSocket</text>
+
+  <line x1="35" y1="735" x2="65" y2="735" stroke="#f59e0b" stroke-width="3"/>
+  <text x="80" y="740" font-family="sans-serif" font-size="11" fill="#d1d5db">DB Write</text>
+
+  <line x1="35" y1="755" x2="65" y2="755" stroke="#f97316" stroke-width="3"/>
+  <text x="80" y="760" font-family="sans-serif" font-size="11" fill="#d1d5db">Query</text>
+
+</svg>
+</body>
+</html>
